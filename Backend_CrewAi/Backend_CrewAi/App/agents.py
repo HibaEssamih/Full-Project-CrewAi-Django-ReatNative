@@ -6,7 +6,7 @@ from .tools.ExaSearchTool import ExaSearchTool
 llm = ChatGoogleGenerativeAI(model="gemini-pro",
                              verbose=True,
                              temperature=0.6,
-                             google_api_key="AIzaSyAjiz-9TsZ7CbhjF_gRioS-VqLPVPVpjUQ")
+                             google_api_key="GEMINI_API_KEY")
 
 
 class LegalQueryAgents():
