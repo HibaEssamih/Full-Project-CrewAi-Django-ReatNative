@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CHAT_BOT_FACE = 'https://res.cloudinary.com/dknvsbuyy/image/upload/v1685678135/chat_1_c7eda483e3.png';
 
@@ -28,29 +27,36 @@ export default function ChatScreen() {
         setInputText('');
 
         try {
+            const formData = new FormData();
+            formData.append('query', inputText);
             
             const resp = await fetch('http://127.0.0.1:8000/api/legal_query/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ query: inputText }),
+                body: formData,
             });
             const responseData = await resp.json();
-
             
-            const chatBotResponse = {
-                _id: messages.length + 2,
-                text: responseData.result,
-                createdAt: new Date(),
-                user: {
-                    _id: 2,
-                    name: 'Chat Bot',
-                    avatar: CHAT_BOT_FACE,
-                },
-            };
-
-            setMessages([...messages, chatBotResponse]);
+            // Check if responseData.result is defined
+            if (responseData.result) {
+                // Extract and format the result from the response
+                const formattedResult = responseData.result.replace(/\n\n/g, '\n').replace(/\n\n\*/g, '\n\n•').replace(/\*+/g, '');
+                
+                // Construct chat bot response
+                const chatBotResponse = {
+                    _id: messages.length + 2,
+                    text: formattedResult,
+                    createdAt: new Date(),
+                    user: {
+                        _id: 2,
+                        name: 'Chat Bot',
+                        avatar: CHAT_BOT_FACE,
+                    },
+                };
+                
+                setMessages([...messages, userMessage, chatBotResponse]); // Add both user message and chat bot response
+            } else {
+                console.error('Error: Response data does not contain result:', responseData);
+            }
         } catch (error) {
             console.error('Error:', error);
         }
@@ -64,25 +70,37 @@ export default function ChatScreen() {
                     this.scrollView.scrollToEnd({ animated: true });
                 }}
             >
-                {messages.map((message) => (
-                    <View key={message._id} style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                        {message.user._id === 1 ? null : (
-                            <Image
-                                source={{ uri: message.user.avatar }}
-                                style={{ width: 40, height: 40, borderRadius: 20, marginRight: 8 }}
-                            />
+                {messages.map((message, index) => (
+                    <View key={message._id} style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                        {message.user._id === 1 ? ( // User's message
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', marginVertical: 4 }}>
+                                <View
+                                    style={{
+                                        backgroundColor: '#eeeeee',
+                                        borderRadius: 8,
+                                        paddingHorizontal: 12,
+                                        paddingVertical: 8,
+                                        maxWidth: '70%',
+                                    }}
+                                >
+                                    <Text style={{ color: '#000' }}>{message.text}</Text>
+                                </View>
+                            </View>
+                        ) : ( // Chat Bot's response
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-start', marginVertical: 4 }}>
+                                <View
+                                    style={{
+                                        backgroundColor: '#671ddf',
+                                        borderRadius: 8,
+                                        paddingHorizontal: 12,
+                                        paddingVertical: 8,
+                                        maxWidth: '70%',
+                                    }}
+                                >
+                                    <Text style={{ color: '#fff' }}>{message.text}</Text>
+                                </View>
+                            </View>
                         )}
-                        <View
-                            style={{
-                                backgroundColor: message.user._id === 1 ? '#671ddf' : '#fff',
-                                borderRadius: 8,
-                                paddingHorizontal: 12,
-                                paddingVertical: 8,
-                                margin: 4,
-                            }}
-                        >
-                            <Text style={{ color: message.user._id === 1 ? '#fff' : '#000' }}>{message.text}</Text>
-                        </View>
                     </View>
                 ))}
             </ScrollView>
