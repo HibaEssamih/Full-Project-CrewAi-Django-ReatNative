@@ -70,7 +70,7 @@ class LegalQueryTasks():
                 Answer: {answer}"""),
             expected_output=dedent("""\
                 Verified and reliable legal answer."""),
-            async_execution=True,
+            # async_execution=True,
             agent=agent
         )
 

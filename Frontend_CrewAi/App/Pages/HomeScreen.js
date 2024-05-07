@@ -48,7 +48,7 @@ export default function HomeScreen() {
         </TouchableOpacity> 
         )}
         />
-        <Text style={{marginTop:5,fontSize:17,color:'#B0B0B0'}}>Choose Your Fav ChatBuddy</Text>
+        <Text style={{marginTop:5,fontSize:17,color:'#B0B0B0'}}>Choose Your Fav Chat</Text>
     </View>
     <TouchableOpacity style={[{backgroundColor:selectedChatFace.primary}
         ,{marginTop:40,padding:17,width:Dimensions.get('screen').width*0.6,

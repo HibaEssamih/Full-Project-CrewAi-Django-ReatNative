@@ -24,6 +24,8 @@ def legal_query_view(request):
             legal_analysis_agent = agents.legal_analysis_agent()
             quality_assurance_agent = agents.quality_assurance_agent()
             report_generation_agent = agents.report_generation_agent()
+            decision_maker_agent = agents.decision_maker_agent()
+
 
             # Create Tasks
             data_gathering = tasks.data_gathering_task(data_gathering_agent, query)
@@ -32,6 +34,8 @@ def legal_query_view(request):
             legal_analysis = tasks.legal_analysis_task(legal_analysis_agent, query, data_gathering.expected_output)
             quality_assurance = tasks.quality_assurance_task(quality_assurance_agent, legal_analysis.expected_output)
             report_generation = tasks.report_generation_task(report_generation_agent, query, legal_analysis.expected_output)
+            decision_making = tasks.decision_making_task(decision_maker_agent, legal_analysis.expected_output, context=[legal_analysis, quality_assurance])
+
 
             # Set up task context
             legal_analysis.context = [data_gathering]
@@ -47,6 +51,7 @@ def legal_query_view(request):
                     legal_analysis_agent,
                     quality_assurance_agent,
                     report_generation_agent,
+                    decision_maker_agent,
                 ],
                 tasks=[
                     data_gathering,
@@ -55,6 +60,7 @@ def legal_query_view(request):
                     legal_analysis,
                     quality_assurance,
                     report_generation,
+                    decision_making,
                 ]
             )
 
