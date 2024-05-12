@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 const CHAT_BOT_FACE = 'https://res.cloudinary.com/dknvsbuyy/image/upload/v1685678135/chat_1_c7eda483e3.png';
@@ -7,9 +7,13 @@ const CHAT_BOT_FACE = 'https://res.cloudinary.com/dknvsbuyy/image/upload/v168567
 export default function ChatScreen() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const onSend = async () => {
-        if (!inputText.trim()) return;
+        if (!inputText.trim() || loading) return;
+
+        // Disable send button and show loading indicator
+        setLoading(true);
 
         // Construct user message
         const userMessage = {
@@ -29,18 +33,18 @@ export default function ChatScreen() {
         try {
             const formData = new FormData();
             formData.append('query', inputText);
-            
-            const resp = await fetch('http://127.0.0.1:8000/api/legal_query/', {
+            const resp = await fetch(`http://192.168.1.14:8000/api/legal_assistance_check/`, {
                 method: 'POST',
                 body: formData,
             });
+
             const responseData = await resp.json();
-            
+
             // Check if responseData.result is defined
             if (responseData.result) {
                 // Extract and format the result from the response
                 const formattedResult = responseData.result.replace(/\n\n/g, '\n').replace(/\n\n\*/g, '\n\n•').replace(/\*+/g, '');
-                
+
                 // Construct chat bot response
                 const chatBotResponse = {
                     _id: messages.length + 2,
@@ -52,13 +56,17 @@ export default function ChatScreen() {
                         avatar: CHAT_BOT_FACE,
                     },
                 };
-                
-                setMessages([...messages, userMessage, chatBotResponse]); // Add both user message and chat bot response
+
+                // Add chat bot response after user message
+                setMessages([...messages, userMessage, chatBotResponse]);
             } else {
                 console.error('Error: Response data does not contain result:', responseData);
             }
         } catch (error) {
             console.error('Error:', error);
+        } finally {
+            // Re-enable send button and hide loading indicator
+            setLoading(false);
         }
     };
 
@@ -111,10 +119,32 @@ export default function ChatScreen() {
                     value={inputText}
                     onChangeText={(text) => setInputText(text)}
                 />
-                <TouchableOpacity onPress={onSend}>
-                    <FontAwesome name="send" size={24} color="#671ddf" />
+                <TouchableOpacity onPress={onSend} disabled={loading} style={[styles.sendButton, loading && styles.sendButtonDisabled]}>
+                    <FontAwesome name="send" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
+            {loading && (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator color="#671ddf" size="large" />
+                </View>
+            )}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    sendButton: {
+        backgroundColor: '#671ddf',
+        borderRadius: 20,
+        padding: 10,
+    },
+    sendButtonDisabled: {
+        opacity: 0.5,
+    },
+    loadingContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});

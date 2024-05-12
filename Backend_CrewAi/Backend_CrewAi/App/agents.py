@@ -10,6 +10,37 @@ llm = ChatGoogleGenerativeAI(model="gemini-pro",
 
 
 class LegalQueryAgents():
+    
+    def check_legal_assistance_agent(self):
+        return Agent(
+            role='Legal Assistance Checker',
+            goal='Check if a query needs legal assistance or not',
+            tools=[],  
+            llm=llm,  
+            backstory=dedent("""\
+                As a Legal Assistance Checker, your task is to determine whether a given query 
+                requires legal assistance or not. You need to analyze the query and make a 
+                decision based on certain criteria, such as the presence of legal terms, sensitive 
+                topics, etc."""),
+            verbose=True
+        )
+        
+    def simple_query_agent(self):
+        return Agent(
+            role='Simple Query Analyst',
+            goal='Analyze simple queries and provide helpful responses, showcasing ability to assist with legal information',
+            tools=[],  # No specific tools required for simple queries
+            llm=llm,
+            backstory=dedent("""\
+                As a legal ai assistant, your task is to analyze simple queries and
+                provide straightforward responses. You can assist users with a wide range
+                of legal topics and showcase our ability to help with legal information 
+                on any topic. This role is suitable for handling non-legal inquiries or 
+                basic questions while demonstrating our expertise in legal matters."""),
+            verbose=True
+        )
+
+            
     def data_gathering_agent(self):
         return Agent(
             role='Legal Data Gatherer',
@@ -20,6 +51,7 @@ class LegalQueryAgents():
                     As a Legal Data Gatherer, your task is to collect comprehensive
                     information on Canadian laws relevant to the given query."""),
             verbose=True
+            
         )
 
     def natural_language_processing_agent(self):
@@ -30,7 +62,7 @@ class LegalQueryAgents():
             llm=llm,
             backstory=dedent("""\
                     As an NLP Specialist, your role is to analyze and understand legal queries
-                    using advanced Natural Language Processing algorithms."""),
+                    using advanced Natural Language Processing algorithms. """),
             verbose=True
         )
 

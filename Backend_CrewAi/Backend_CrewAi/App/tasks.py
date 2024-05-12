@@ -2,6 +2,34 @@ from textwrap import dedent
 from crewai import Task
 
 class LegalQueryTasks():
+    def check_legal_assistance_task(self, agent, query):   
+        needs_legal_assistance = False  
+        
+        return Task(
+            description=dedent(f"""\
+                Check if the query requires legal assistance or not.
+                
+                Query: {query}"""),
+            expected_output=dedent("""\
+                Boolean indicating whether legal assistance is needed."""),
+            async_execution=False,
+            agent=agent,
+            return_value=needs_legal_assistance
+        )
+        
+    def simple_query_analysis_task(self, agent, query):
+        return Task(            
+            description=dedent(f"""\
+                Analyze the query and provide a response, showcasing the ability to assist with legal information on any topic.
+                
+                Query: {query}"""),
+            expected_output=dedent("""\
+                Response to the query, demonstrating our ability to assist with legal information."""),
+            async_execution=False,  # Assuming synchronous execution
+            agent=agent
+        )
+
+        
     def data_gathering_task(self, agent, query):
         return Task(
             description=dedent(f"""\
@@ -23,7 +51,8 @@ class LegalQueryTasks():
                 algorithms. Parse the question, identify key legal concepts,
                 and understand the context of the inquiry.
 
-                Query: {query}"""),
+                Query: {query}
+                """),
             expected_output=dedent("""\
                 NLP analysis result identifying key legal concepts and context."""),
             async_execution=True,
