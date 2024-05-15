@@ -2,14 +2,16 @@ from textwrap import dedent
 from crewai import Task
 
 class LegalQueryTasks():
-    def check_legal_assistance_task(self, agent, query):   
+    def check_legal_assistance_task(self, agent, query, chat_history=None):   
         needs_legal_assistance = False  
         
         return Task(
             description=dedent(f"""\
-                Check if the query requires legal assistance or not.
+                Check if the query or the chat history requires or contains legal assistance or not.
                 
-                Query: {query}"""),
+                Query: {query}
+                Chat History: {chat_history}"""),
+            
             expected_output=dedent("""\
                 Boolean indicating whether legal assistance is needed."""),
             async_execution=False,
@@ -17,12 +19,28 @@ class LegalQueryTasks():
             return_value=needs_legal_assistance
         )
         
-    def simple_query_analysis_task(self, agent, query):
+    def document_generation_check_task(self, agent, query, chat_history=None):
+        is_document_generation_query = False        
+        return Task(
+            description=dedent(f"""\
+                Check if the query is for document generation.
+                
+                Query: {query}"""),
+            expected_output=dedent("""\
+                Boolean indicating whether the query is for document generation or not."""),
+            async_execution=False,
+            agent=agent,
+            return_value=is_document_generation_query
+    )
+
+        
+    def simple_query_analysis_task(self, agent, query, chat_history=None):
         return Task(            
             description=dedent(f"""\
                 Analyze the query and provide a response, showcasing the ability to assist with legal information on any topic.
                 
-                Query: {query}"""),
+                Query: {query}
+                Chat History: {chat_history}"""),
             expected_output=dedent("""\
                 Response to the query, demonstrating our ability to assist with legal information."""),
             async_execution=False,  # Assuming synchronous execution
@@ -30,21 +48,22 @@ class LegalQueryTasks():
         )
 
         
-    def data_gathering_task(self, agent, query):
+    def data_gathering_task(self, agent, query, chat_history=None):
         return Task(
             description=dedent(f"""\
                 Gather information on Canadian laws related to the given query.
                 Utilize legal databases, government websites, and reputable law
                 firms' resources to collect relevant data.
 
-                Query: {query}"""),
+                Query: {query}
+                Chat History: {chat_history}"""),
             expected_output=dedent("""\
                 Comprehensive collection of legal information related to the query."""),
             async_execution=True,
             agent=agent
         )
 
-    def natural_language_processing_task(self, agent, query):
+    def natural_language_processing_task(self, agent, query, chat_history=None):
         return Task(
             description=dedent(f"""\
                 Process the legal query using Natural Language Processing (NLP)
@@ -52,14 +71,14 @@ class LegalQueryTasks():
                 and understand the context of the inquiry.
 
                 Query: {query}
-                """),
+                Chat History: {chat_history}"""),
             expected_output=dedent("""\
                 NLP analysis result identifying key legal concepts and context."""),
             async_execution=True,
             agent=agent
         )
 
-    def search_algorithm_task(self, agent, query):
+    def search_algorithm_task(self, agent, query, chat_history=None):
         return Task(
             description=dedent(f"""\
                 Develop and execute search algorithms to efficiently find relevant
@@ -67,14 +86,15 @@ class LegalQueryTasks():
                 search engines effectively and filter results for accuracy
                 and reliability.
 
-                Query: {query}"""),
+                Query: {query}
+                Chat History: {chat_history}"""),
             expected_output=dedent("""\
                 Efficiently retrieved and filtered web search results."""),
             async_execution=True,
             agent=agent
         )
 
-    def legal_analysis_task(self, agent, query, data):
+    def legal_analysis_task(self, agent, query, data, chat_history=None):
         return Task(
             description=dedent(f"""\
                 Analyze legal documents and statutes to extract relevant information
@@ -82,7 +102,8 @@ class LegalQueryTasks():
                 analyze citations, and cross-reference information.
 
                 Query: {query}
-                Legal Data: {data}"""),
+                Legal Data: {data}
+                Chat History: {chat_history}"""),
             expected_output=dedent("""\
                 Accurate legal analysis and answer to the query."""),
             async_execution=True,
@@ -103,14 +124,15 @@ class LegalQueryTasks():
             agent=agent
         )
 
-    def report_generation_task(self, agent, query, answer):
+    def report_generation_task(self, agent, query, answer, chat_history=None):
         return Task(
             description=dedent(f"""\
                 Generate a concise report summarizing the legal query, analysis,
                 and provided answer. Include references to authoritative sources.
 
                 Query: {query}
-                Answer: {answer}"""),
+                Answer: {answer}
+                Chat History: {chat_history}"""),
             expected_output=dedent("""\
                 Concise report summarizing the legal query, analysis, and answer."""),
             agent=agent
@@ -129,3 +151,18 @@ class LegalQueryTasks():
             async_execution=True,
             agent=agent
         )
+    
+
+    def document_generation_query_task(self, agent, query, chat_history=None):
+        return Task(
+            description=dedent(f"""\
+                Gather information about the type and topic of the document that we need to generate using chat history and the query. Prompt the user that it's important to enter this information for generating the document.
+                
+                Query: {query}
+                Chat History: {chat_history}"""),
+            expected_output=dedent("""\
+                A simple response to prompt the user to enter this important information."""),
+            async_execution=False,
+            agent=agent,
+    )
+

@@ -6,7 +6,7 @@ from .tools.ExaSearchTool import ExaSearchTool
 llm = ChatGoogleGenerativeAI(model="gemini-pro",
                              verbose=True,
                              temperature=0.6,
-                             google_api_key="GEMINI_API_KEY")
+                             google_api_key="AIzaSyDS2RtWcpCcFAF_U6JV0Gx6E1i4But8KQo")
 
 
 class LegalQueryAgents():
@@ -17,11 +17,28 @@ class LegalQueryAgents():
             goal='Check if a query needs legal assistance or not',
             tools=[],  
             llm=llm,  
-            backstory=dedent("""\
+            backstory = dedent("""\
                 As a Legal Assistance Checker, your task is to determine whether a given query 
-                requires legal assistance or not. You need to analyze the query and make a 
-                decision based on certain criteria, such as the presence of legal terms, sensitive 
-                topics, etc."""),
+                requires legal assistance or not. You need to analyze the query along with the 
+                chat history to make a decision. Factors such as the presence of legal terms, 
+                sensitive topics, and past interactions in the chat history will influence your decision. 
+                This comprehensive approach ensures that you provide accurate and relevant assistance 
+                based on the context of the conversation."""),
+
+            verbose=True
+        )
+        
+    def document_generation_check_agent(self):
+        return Agent(
+            role='Document Generation Checker',
+            goal='Check if a query is for document generation',
+            tools=[],  
+            llm=llm,
+            backstory=dedent("""\
+                As a Document Generation Checker, your task is to determine whether a given query 
+                is for document generation or not. You need to analyze the query to identify any 
+                indications of a request for document creation. This role ensures that document 
+                generation requests are appropriately identified and handled."""),
             verbose=True
         )
         
@@ -29,7 +46,7 @@ class LegalQueryAgents():
         return Agent(
             role='Simple Query Analyst',
             goal='Analyze simple queries and provide helpful responses, showcasing ability to assist with legal information',
-            tools=[],  # No specific tools required for simple queries
+            tools=[],  
             llm=llm,
             backstory=dedent("""\
                 As a legal ai assistant, your task is to analyze simple queries and
@@ -127,3 +144,21 @@ class LegalQueryAgents():
                     the analysis of legal data and understanding of the context."""),
             verbose=True
         )
+        
+    def document_generation_query_agent(self):
+        return Agent(
+            role='Document Generation Request Processor',
+            goal='Process requests for document generation and prompt users to enter necessary information',
+            tools=[],  
+            llm=llm,  
+            backstory = dedent("""\
+                As a Document Generation Request Processor, your task is to handle requests for document generation. 
+                You will analyze the query and chat history to gather information about the type and topic of the 
+                document needed. Additionally, you will prompt the user that it's important to enter this information 
+                for generating the document. Your role is crucial in ensuring that all necessary details are provided 
+                for the document generation process."""),
+            verbose=True
+    )
+
+        
+    

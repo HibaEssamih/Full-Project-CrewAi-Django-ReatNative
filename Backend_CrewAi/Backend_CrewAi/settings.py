@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-8jb_x-#xqy=_&kd&h1ir$7jg+v9q1_j))_^$3enc&_+gg4=m(x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['example.com', 'www.example.com', '127.0.0.1:8000','127.0.0.1','http://localhost:8081','http://192.168.1.15:8081','http://172.25.96.1:8081','192.168.1.14']
+ALLOWED_HOSTS = ['example.com', 'www.example.com', '127.0.0.1:8000','127.0.0.1','http://localhost:8081','http://192.168.1.15:8081','http://172.25.96.1:8081','192.168.1.14','192.168.110.21','192.168.1.3']
 
 
 # Application definition
@@ -130,6 +130,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://172.25.96.1:8081',
     'http://192.168.1.15:8080',
     'http://192.168.1.14:8000',
+    'http://192.168.110.21:8000',
+    'http://192.168.1.3:8000',
 ]
 
 CORS_ORIGIN_WHITELIST = [
@@ -137,6 +139,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://172.25.96.1:8081',
     'http://192.168.1.15:8080',
     'http://192.168.1.14:8000',
+    'http://192.168.110.21:8000',
+    'http://192.168.1.3:8000',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
