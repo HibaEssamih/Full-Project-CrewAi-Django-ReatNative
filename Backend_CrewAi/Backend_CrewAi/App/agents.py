@@ -6,7 +6,7 @@ from .tools.ExaSearchTool import ExaSearchTool
 llm = ChatGoogleGenerativeAI(model="gemini-pro",
                              verbose=True,
                              temperature=0.6,
-                             google_api_key="GEMINI_API_KEY")
+                             google_api_key="")
 
 
 class LegalQueryAgents():
@@ -146,33 +146,46 @@ class LegalQueryAgents():
         )
         
     
-    def document_generation_query_agent(self):
+    def document_generation_submission_agent(self):
         return Agent(
-            role='Document Generation Query Agent',
-            goal='Prompt users to provide necessary information for document generation',
+            role='Document Generation Agent',
+            goal='Prompt users to provide necessary information and extract it for document generation',
             tools=[],  
             llm=llm,  
-            backstory = dedent("""\
-                As a Document Generation Query Agent, your task is to prompt users to provide necessary 
-                information for document generation. You will interact with users to gather details 
-                about the type and topic of the document needed. Your role is crucial in ensuring 
-                that users understand the importance of providing this information for the document 
-                generation process."""),
+            backstory=dedent("""\
+                As a Document Generation Agent, your task is to both prompt users to provide necessary 
+                information for document generation and to extract this information from their responses. 
+                You will interact with users to gather details about the type and topic of the document needed 
+                and ensure all required details are accurately extracted. Your role is crucial in ensuring that 
+                users understand the importance of providing this information and that all needed details are 
+                collected for the document generation process."""),
             verbose=True
         )
-    
-    def extract_information_for_document_generation_agent(self):
+        
+    def document_generation_agent(self):
         return Agent(
-            role='Information Extraction Agent',
-            goal='Extract necessary information from user responses for document generation',
+            role='Document Generation Agent',
+            goal='Prompt users to extract necessary information, and generate a legal letter based on the provided and extracted information.',
             tools=[],  
             llm=llm,  
-            backstory = dedent("""\
-                As an Information Extraction Agent, your task is to extract necessary information 
-                from user responses for document generation. You will analyze user inputs to 
-                identify details such as landlord's name and contact information, property address, 
-                description of repairs needed, and the desired completion date. Your role is crucial 
-                in ensuring that all required details are accurately extracted for the document generation process."""),
+            backstory=dedent("""\
+                As a Document Generation Agent, your task is to extract relevant details from the chat history, and create the document. 
+                You will ensure all required details are accurately extracted. And that all needed details are collected 
+                and used effectively for the document generation process."""),
+            verbose=True
+        ) 
+    
+    def document_check_agent(self):
+        return Agent(
+            role='Document Check Agent',
+            goal='Ensure all necessary information for document creation is available and return a boolean indicating completeness.',
+            tools=[],  
+            llm=llm,  
+            backstory=dedent("""\
+                As a Document Check Agent, your task is to verify that all necessary information 
+                for creating a document is present based on the user's query and chat history. 
+                You will analyze the provided information and determine if it is complete. 
+                Your role is crucial in ensuring that the document can be accurately and completely generated."""),
             verbose=True
         )
 

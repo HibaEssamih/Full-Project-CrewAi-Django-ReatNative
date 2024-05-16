@@ -153,28 +153,47 @@ class LegalQueryTasks():
         )
     
 
-    def document_generation_query_task(self, agent, query, chat_history=None):
+    def document_generation_submission_task(self, agent, query, chat_history=None):
         return Task(
             description=dedent(f"""\
-                Gather information about the type and topic of the document that we need to generate using chat history and the query. Prompt the user that it's important to enter this information for generating the document.
+                Gather information needed to generate the demanded document using chat history and the query.
+                Prompt the user that it's important to enter this information for generating the document.
                 
                 Query: {query}
                 Chat History: {chat_history}"""),
-            expected_output=dedent("""\
-                A simple response to prompt the user to enter this important information without listing those information."""),
+            expected_output=dedent(f"""\
+                A simple response to prompt the user to enter this important information without listing those information.
+                Just a list of the important information for generating the document."""),
             async_execution=False,
             agent=agent,
         )
-        
-    def extract_information_for_document_generation_task(self, agent, query, chat_history=None):
+    
+
+    def document_generation_task(self, agent, query, chat_history=None):
         return Task(
             description=dedent(f"""\
-                Gather information needed to generate the demanded document using chat history and the query. 
-                
+                Generate a legal letter based on the user's recent query and chat history. 
+                First, prompt the user for any additional necessary information. 
+                Then, extract the relevant details and use them to create the letter.
+
                 Query: {query}
                 Chat History: {chat_history}"""),
             expected_output=dedent("""\
-                Just a list of the important information for generating the document."""),
+                The generated legal letter based on the provided and extracted information."""),
+            async_execution=False,
+            agent=agent,
+        )
+
+    def check_information_task(self, agent, query, chat_history=None):
+        return Task(
+            description=dedent(f"""\
+                Check if all necessary information for creating the document is available based on the user's recent query and chat history. 
+                Return a boolean indicating whether the information is complete (True) or if there are any missing details (False).
+
+                Query: {query}
+                Chat History: {chat_history}"""),
+            expected_output=dedent("""\
+                Boolean indicating whether is all necessary information is available or not."""),
             async_execution=False,
             agent=agent,
         )

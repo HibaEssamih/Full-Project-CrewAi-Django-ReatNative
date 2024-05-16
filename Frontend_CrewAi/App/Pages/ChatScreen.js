@@ -22,7 +22,7 @@ export default function ChatScreen() {
                 formData.append(`history[${index}][createdAt]`, message.createdAt.toISOString());
             });
 
-            const resp = await fetch(`http://192.168.1.3:8000/api/document_generation_check/`, {
+            const resp = await fetch(`http://192.168.110.21:8000/api/document_generation_check/`, {
                 method: 'POST',
                 body: formData,
             });
