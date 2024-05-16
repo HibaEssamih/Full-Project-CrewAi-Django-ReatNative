@@ -161,8 +161,20 @@ class LegalQueryTasks():
                 Query: {query}
                 Chat History: {chat_history}"""),
             expected_output=dedent("""\
-                A simple response to prompt the user to enter this important information."""),
+                A simple response to prompt the user to enter this important information without listing those information."""),
             async_execution=False,
             agent=agent,
-    )
-
+        )
+        
+    def extract_information_for_document_generation_task(self, agent, query, chat_history=None):
+        return Task(
+            description=dedent(f"""\
+                Gather information needed to generate the demanded document using chat history and the query. 
+                
+                Query: {query}
+                Chat History: {chat_history}"""),
+            expected_output=dedent("""\
+                Just a list of the important information for generating the document."""),
+            async_execution=False,
+            agent=agent,
+        )

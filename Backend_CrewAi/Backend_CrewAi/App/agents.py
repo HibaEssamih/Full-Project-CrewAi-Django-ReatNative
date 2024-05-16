@@ -6,7 +6,7 @@ from .tools.ExaSearchTool import ExaSearchTool
 llm = ChatGoogleGenerativeAI(model="gemini-pro",
                              verbose=True,
                              temperature=0.6,
-                             google_api_key="AIzaSyDS2RtWcpCcFAF_U6JV0Gx6E1i4But8KQo")
+                             google_api_key="GEMINI_API_KEY")
 
 
 class LegalQueryAgents():
@@ -145,20 +145,37 @@ class LegalQueryAgents():
             verbose=True
         )
         
+    
     def document_generation_query_agent(self):
         return Agent(
-            role='Document Generation Request Processor',
-            goal='Process requests for document generation and prompt users to enter necessary information',
+            role='Document Generation Query Agent',
+            goal='Prompt users to provide necessary information for document generation',
             tools=[],  
             llm=llm,  
             backstory = dedent("""\
-                As a Document Generation Request Processor, your task is to handle requests for document generation. 
-                You will analyze the query and chat history to gather information about the type and topic of the 
-                document needed. Additionally, you will prompt the user that it's important to enter this information 
-                for generating the document. Your role is crucial in ensuring that all necessary details are provided 
-                for the document generation process."""),
+                As a Document Generation Query Agent, your task is to prompt users to provide necessary 
+                information for document generation. You will interact with users to gather details 
+                about the type and topic of the document needed. Your role is crucial in ensuring 
+                that users understand the importance of providing this information for the document 
+                generation process."""),
             verbose=True
-    )
+        )
+    
+    def extract_information_for_document_generation_agent(self):
+        return Agent(
+            role='Information Extraction Agent',
+            goal='Extract necessary information from user responses for document generation',
+            tools=[],  
+            llm=llm,  
+            backstory = dedent("""\
+                As an Information Extraction Agent, your task is to extract necessary information 
+                from user responses for document generation. You will analyze user inputs to 
+                identify details such as landlord's name and contact information, property address, 
+                description of repairs needed, and the desired completion date. Your role is crucial 
+                in ensuring that all required details are accurately extracted for the document generation process."""),
+            verbose=True
+        )
+
 
         
     

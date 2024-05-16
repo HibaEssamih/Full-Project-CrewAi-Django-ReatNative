@@ -3,6 +3,8 @@ from django.views.decorators.csrf import csrf_exempt
 from crewai import Crew
 from .tasks import LegalQueryTasks
 from .agents import LegalQueryAgents
+import json
+
 
 @csrf_exempt
 def legal_assistance_check_view(request):
@@ -249,9 +251,8 @@ def complex_tasks_view(request):
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
 
 @csrf_exempt
-def generate_document_form_view(request):
+def extract_information_for_document_generation_view(request):
     if request.method == 'POST':
-        print(request.POST)
         query = request.POST.get('query', '')  
         chat_history = []
 
@@ -268,27 +269,65 @@ def generate_document_form_view(request):
             tasks = LegalQueryTasks()
             agents = LegalQueryAgents()
 
-            # Create Agents
-            document_generation_query_agent = agents.document_generation_query_agent()
-
-            # Create Task with Agent
-            document_generation_query_task = tasks.document_generation_query_task(document_generation_query_agent, query, chat_history)
+            extract_information_for_document_generation_agent = agents.extract_information_for_document_generation_agent()
+            extract_information_for_document_generation_task = tasks.extract_information_for_document_generation_task(extract_information_for_document_generation_agent, query, chat_history)
             
-            # Print Query and Chat History for Debugging
-            print('***************************************', query)
-            print('***************************************', chat_history)
+            crew = Crew(
+                agents=[extract_information_for_document_generation_agent],
+                tasks=[extract_information_for_document_generation_task]
+            )
 
-            # Create Crew
+            game = crew.kickoff()
+            print('******************ttoo**********', str(game))
+
+            return JsonResponse({'extracted_information': str(game)})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+        
+    else:
+        return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+
+
+@csrf_exempt
+def generate_document_form_view(request):
+    if request.method == 'POST':
+        query = request.POST.get('query', '')  
+        chat_history = []
+
+        for key in request.POST:
+            if key.startswith('history['):
+                history_item = {
+                    'type': request.POST.get(key),
+                    'text': request.POST.get(f'{key}[text]'),
+                    'createdAt': request.POST.get(f'{key}[createdAt]')
+                }
+                chat_history.append(history_item)
+        
+        try:
+            # Extract information first
+            extracted_information_response = extract_information_for_document_generation_view(request)
+            extracted_information_response_dict = json.loads(extracted_information_response.content)
+            extracted_information = extracted_information_response_dict.get('extracted_information')
+
+            if 'error' in extracted_information_response_dict:
+                return JsonResponse({'error': extracted_information_response_dict['error']}, status=500)
+
+            # Proceed with document generation using the extracted information
+            tasks = LegalQueryTasks()
+            agents = LegalQueryAgents()
+
+            document_generation_query_agent = agents.document_generation_query_agent()
+            document_generation_query_task = tasks.document_generation_query_task(document_generation_query_agent, query, chat_history)
+
             crew = Crew(
                 agents=[document_generation_query_agent],
                 tasks=[document_generation_query_task]
             )
 
-            # Kick off crew's activities
             game = crew.kickoff()
 
-            # Return results
-            return JsonResponse({'result': str(game)})
+            return JsonResponse({'result': str(game), 'information': extracted_information})
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-
-const CHAT_BOT_FACE = 'https://res.cloudinary.com/dknvsbuyy/image/upload/v1685678135/chat_1_c7eda483e3.png';
 
 export default function ChatScreen() {
     const [chatHistory, setChatHistory] = useState([]);
@@ -12,14 +10,12 @@ export default function ChatScreen() {
     const onSend = async () => {
         if (!inputText.trim() || loading) return;
 
-        // Disable send button and show loading indicator
         setLoading(true);
 
         try {
             const formData = new FormData();
             formData.append('query', inputText);
 
-            // Append chat history to formData
             chatHistory.forEach((message, index) => {
                 formData.append(`history[${index}][type]`, message.type);
                 formData.append(`history[${index}][text]`, message.text);
@@ -33,27 +29,34 @@ export default function ChatScreen() {
 
             const responseData = await resp.json();
 
-            // Construct user message
             const userMessage = {
                 type: 'user',
                 text: inputText,
                 createdAt: new Date(),
             };
 
-            // Construct chat bot response
             const chatBotResponse = {
                 type: 'bot',
                 text: responseData.result,
                 createdAt: new Date(),
             };
 
-            // Update chat history with user message and bot response
-            setChatHistory([...chatHistory, userMessage, chatBotResponse]);
+            const newChatHistory = [...chatHistory, userMessage, chatBotResponse];
+
+            if (responseData.information) {
+                const infoMessage = {
+                    type: 'bot',
+                    text: responseData.information,
+                    createdAt: new Date(),
+                };
+                newChatHistory.push(infoMessage);
+            }
+
+            setChatHistory(newChatHistory);
             setInputText('');
         } catch (error) {
             console.error('Error:', error);
         } finally {
-            // Re-enable send button and hide loading indicator
             setLoading(false);
         }
     };
@@ -75,6 +78,7 @@ export default function ChatScreen() {
                                 paddingHorizontal: 12,
                                 paddingVertical: 8,
                                 maxWidth: '70%',
+                                marginVertical: 4,
                                 alignSelf: 'flex-start',
                             }}
                         >
@@ -99,7 +103,6 @@ export default function ChatScreen() {
                     <ActivityIndicator color="#671ddf" size="large" />
                 </View>
             )}
-            
         </View>
     );
 }
